@@ -24,12 +24,13 @@
       building_blocks/MachineApplication.md runtime.md runtime/ordering_dishes.md runtime/preparing_dishes.md runtime/paying_with_credit_card.md design_decisions.md risks.md
       glossary.md bibliography.md</spec.files>
     <!-- Do not change the properties below -->
-    <spec.source.directory>${project.basedir}/doc</spec.source.directory>
-    <spec.source.css.directory>${spec.source.directory}/css</spec.source.css.directory>
-    <spec.model.directory>${project.basedir}/uml</spec.model.directory>
+    <spec.source.directory>${project.basedir}${file.separator}doc</spec.source.directory>
+    <spec.source.css.directory>${spec.source.directory}${file.separator}css</spec.source.css.directory>
+    <spec.model.directory>${project.basedir}${file.separator}uml</spec.model.directory>
     <spec.build.html.directory>${project.build.directory}</spec.build.html.directory>
-    <spec.build.uml.directory>${project.build.directory}/uml</spec.build.uml.directory>
-    <spec.build.css.directory>${project.build.directory}/css</spec.build.css.directory>
+    <spec.build.uml.directory>${project.build.directory}${file.separator}uml</spec.build.uml.directory>
+    <spec.build.md.directory>${project.build.directory}${file.separator}md</spec.build.md.directory>
+    <spec.build.css.directory>${project.build.directory}${file.separator}css</spec.build.css.directory>
   </properties>
   <build>
     <plugins>
@@ -38,7 +39,7 @@
         <version>3.1.0</version>
         <executions>
           <execution>
-            <id>copy-resources</id>
+            <id>copy-resources_any</id>
             <phase>process-resources</phase>
             <goals>
               <goal>copy-resources</goal>
@@ -70,7 +71,7 @@
         </executions>
         <configuration>
           <sourceFiles>
-            <directory>${spec.model.directory}/diagrams</directory>
+            <directory>${spec.model.directory}${file.separator}diagrams</directory>
             <includes>
               <include>**/*.plantuml</include>
             </includes>
@@ -92,15 +93,32 @@
         <version>1.6.0</version>
         <executions>
           <execution>
-            <id>pandoc</id>
+            <id>mdToPdfByPandoc</id>
+            <phase>compile</phase>
+            <configuration>
+              <executable>pandoc</executable>
+              <workingDirectory>${spec.source.directory}</workingDirectory>
+              <commandlineArgs>--toc
+                --number-sections
+                --css="${spec.source.css.directory}${file.separator}spec.css"
+                --output="${spec.build.html.directory}${file.separator}${spec.filename}.pdf"
+                --filter="${project.basedir}${file.separator}pandoc-svg.py"
+                ${spec.files}</commandlineArgs>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>mdToHtmlByPandoc</id>
             <phase>compile</phase>
             <configuration>
               <executable>pandoc</executable>
               <workingDirectory>${spec.source.directory}</workingDirectory>
               <commandlineArgs>--from=markdown --to=html --toc
                 --number-sections
-                --css=${spec.source.css.directory}/spec.css
-                --output=${spec.build.html.directory}/${spec.filename}.html
+                --css="${spec.source.css.directory}${file.separator}spec.css"
+                --output="${spec.build.html.directory}${file.separator}${spec.filename}.html"
                 ${spec.files}</commandlineArgs>
             </configuration>
             <goals>
